@@ -12,7 +12,7 @@ resource "aws_network_acl" "public_nacl" {
     from_port  = 0
     to_port    = 0
     protocol   = "-1"
-    cidr_block = "${var.default}"
+    cidr_block = var.default
     action     = "allow"
   }
 
@@ -21,7 +21,7 @@ resource "aws_network_acl" "public_nacl" {
     from_port  = 0
     to_port    = 0
     protocol   = "-1"
-    cidr_block = "${var.default}"
+    cidr_block = var.default
     action     = "allow"
   }
 
@@ -41,7 +41,7 @@ resource "aws_network_acl" "private_nacl" {
     from_port  = 0
     to_port    = 0
     protocol   = "-1"
-    cidr_block = "${var.default}"
+    cidr_block = var.default
     action     = "allow"
   }
 
@@ -50,7 +50,7 @@ resource "aws_network_acl" "private_nacl" {
     from_port  = 0
     to_port    = 0
     protocol   = "-1"
-    cidr_block = "${var.default}"
+    cidr_block = var.default
     action     = "allow"
   }
 
@@ -70,7 +70,7 @@ resource "aws_network_acl" "inner_nacl" {
     from_port  = 0
     to_port    = 0
     protocol   = "-1"
-    cidr_block = "${var.default}"
+    cidr_block = var.default
     action     = "allow"
   }
 
@@ -79,7 +79,7 @@ resource "aws_network_acl" "inner_nacl" {
     from_port  = 0
     to_port    = 0
     protocol   = "-1"
-    cidr_block = "${var.default}"
+    cidr_block = var.default
     action     = "allow"
   }
 
