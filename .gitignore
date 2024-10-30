@@ -1,0 +1,8 @@
+.terraform*/
+.terraform*
+terraform.tfstate
+terraform.tfstate.backup
+setup_s3_tf_state/.terraform/
+setup_s3_tf_state/.terraform*
+setup_vpc/.terraform/
+setup_vpc/.terraform*
