@@ -31,3 +31,9 @@ module "deploy_vpc" {
   region   = "eu-west-1"
   #  vpc_cidr = "192.168.0.0/16"
 }
+
+module "deploy_bedrock" {
+  source = "./bedrock"
+  region   = "eu-west-1"
+  s3_bucket_knowleagebase_name = "trinity-knowleadgebase"
+}
