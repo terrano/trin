@@ -3,6 +3,7 @@ terraform {
     bucket         = "bedrock-infrastructure"
     key            = "terraform.tfstate"
     region         = "eu-west-1"
+    region         = "eu-west-1"
     dynamodb_table = "terraform-state-locking"
     encrypt        = true
   }
@@ -26,6 +27,12 @@ provider "aws" {
 #
 #    Use this module to deploy aws networking infrastructure.
 #
+module "deploy_bedrock" {
+  source = "./bedrock"
+  region   = "eu-west-1"
+  s3_bucket_knowleagebase_name = "trinity-knowleadgebase"
+}
+
 #module "deploy_vpc" {
 #  source = "./vpc"
 #  region   = "eu-west-1"
