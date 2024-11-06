@@ -36,4 +36,6 @@ module "deploy_bedrock" {
   source = "./bedrock"
   region   = "eu-west-1"
   s3_bucket_knowleagebase_name = "trinity-knowleadgebase"
+
+  depends_on = [ module.deploy_vpc ]
 }
