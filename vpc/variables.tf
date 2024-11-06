@@ -67,7 +67,7 @@ locals {
     subnet_key => {
       name              = subnet_value.name,
       cidr_block        = "${cidrsubnet(var.vpc_cidr, 9, index(keys(var.subnets_data), subnet_key))}",
-      availability_zone = subnet_key == "public_rds_a" || subnet_key == "public_rds_b" ? local.region_a : local.region_b
+      availability_zone = subnet_key == "public_rds_a" || subnet_key == "private_rds_a" || subnet_key == "inner_rds_a" ? local.region_a : local.region_b
     }
   }
 }
