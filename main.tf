@@ -32,6 +32,9 @@ module "deploy_vpc" {
   #  vpc_cidr = "192.168.0.0/16"
 }
 
+#
+#    Use this module to deploy aws bedrock
+#
 module "deploy_bedrock" {
   source = "./bedrock"
   region   = "eu-west-1"
