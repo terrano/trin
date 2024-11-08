@@ -18,6 +18,11 @@ variable "aurora_cluster_name" {
   default = "trinity-poc-cluster"
 }
 
+variable "aurora_db_name" {
+  type    = string
+  default = "auroradb"
+}
+
 variable "subnet_group_name" {
   type    = string
   default = "rds-ec2-db-subnet-group-1"
@@ -27,6 +32,6 @@ variable "db_credentials" {
   type = map(string)
   default = {
     master_username = "postgres"
-    master_password = "pass"
+    master_password = "password"
   }
 }
