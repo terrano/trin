@@ -99,6 +99,8 @@ resource "aws_rds_cluster" "main" {
   preferred_maintenance_window = "wed:08:07-wed:08:37"
   vpc_security_group_ids       = [data.aws_security_group.security_group_ids.id]
 
+  storage_encrypted  = true
+
   skip_final_snapshot = true
 
   serverlessv2_scaling_configuration {

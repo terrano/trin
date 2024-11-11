@@ -27,34 +27,35 @@ provider "aws" {
 #    Use this module to deploy aws networking infrastructure.
 #
 module "deploy_vpc" {
-  source   = "./vpc"
-  region   = "eu-west-1"
-#  vpc_cidr = "192.168.0.0/16"
+  source = "./vpc"
+  region = "eu-west-1"
+  #  vpc_cidr = "192.168.0.0/16"
 }
 
 #
 #    Use this module to deploy KMS manager.
 #
-module "deploy_kms" {
-  source                  = "./kms"
-  deletion_window_in_days = 7
-}
+#module "deploy_kms" {
+#  source                  = "./kms"
+#  deletion_window_in_days = 7
+#}
 
 #
 #    Use this module to deploy S3 Bucket.
 #
 module "deploy_s3_bucket" {
-  source = "./s3"
+  source                       = "./s3"
   s3_bucket_knowleagebase_name = "trinity-knowleadgebase"
 }
 
 #
-#    Use this module to deploy aws bedrock
+#    Use this module to deploy RDS Aurora
 #
 module "deploy_aurora" {
-  source = "./aurora"
-  region   = "eu-west-1"
+  source                       = "./aurora"
+  region                       = "eu-west-1"
   s3_bucket_knowleagebase_name = "trinity-knowleadgebase"
 
-  depends_on = [ module.deploy_kms ]
+  depends_on = [module.deploy_vpc]
+  #  depends_on = [module.deploy_kms]
 }
