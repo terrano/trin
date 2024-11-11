@@ -27,7 +27,15 @@ provider "aws" {
 #    Use this module to deploy aws networking infrastructure.
 #
 module "deploy_vpc" {
-  source = "./vpc"
+  source   = "./vpc"
   region   = "eu-west-1"
-  #  vpc_cidr = "192.168.0.0/16"
+  vpc_cidr = "192.168.0.0/16"
+}
+
+#
+#    Use this module to deploy KMS manager.
+#
+module "deploy_kms" {
+  source                  = "./kms"
+  deletion_window_in_days = 7
 }
