@@ -12,6 +12,7 @@ resource "random_password" "rds_admin_password" {
 #######  RDS Credentials Storage in AWS Secrets Manager  ########
 resource "aws_secretsmanager_secret" "rds_admin_secret" {
   name        = "rds/admin"
+  kms_key_id              = aws_kms_key.secrets_key.arn
   description = var.secret_manager_description
 }
 
