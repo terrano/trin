@@ -1,4 +1,4 @@
-variable "s3_bucket_knowleagebase_name" {
+variable "s3_bucket_knowledgebase_name" {
   type    = string
   default = "trinity-knowleadgebase-ingress"
 }

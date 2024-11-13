@@ -29,7 +29,7 @@ provider "aws" {
 module "deploy_vpc" {
   source = "./vpc"
   region = "eu-west-1"
-  #  vpc_cidr = "192.168.0.0/16"
+  vpc_cidr = "192.168.0.0/16"
 }
 
 #
@@ -45,7 +45,7 @@ module "deploy_vpc" {
 #
 module "deploy_s3_bucket" {
   source                       = "./s3"
-  s3_bucket_knowleagebase_name = "trinity-knowleadgebase"
+  s3_bucket_knowledgebase_name = "trinity-knowledgebase"
 }
 
 #
@@ -54,8 +54,19 @@ module "deploy_s3_bucket" {
 module "deploy_aurora" {
   source                       = "./aurora"
   region                       = "eu-west-1"
-  s3_bucket_knowleagebase_name = "trinity-knowleadgebase"
 
   depends_on = [module.deploy_vpc]
+#  depends_on = [module.deploy_kms]
+}
+
+#
+#    Use this module to deploy Custom Bedrock
+#
+module "deploy_knowledgebase" {
+  source                       = "./bedrock"
+  region                       = "eu-west-1"
+  s3_bucket_knowledgebase_name = "trinity-knowledgebase"
+
+  depends_on = [module.deploy_s3_bucket]
   #  depends_on = [module.deploy_kms]
 }

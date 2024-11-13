@@ -74,7 +74,7 @@ resource "aws_iam_role_policy_attachment" "aws_rds_monitoring_policy" {
   role       = aws_iam_role.aws_rds_monitoring_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
 
-  depends_on = [aws_iam_role.aws_rds_monitoring_role] 
+  depends_on = [aws_iam_role.aws_rds_monitoring_role]
 }
 
 ########  Setting UP SubnetGroup  ########
@@ -99,7 +99,7 @@ resource "aws_rds_cluster" "main" {
   preferred_maintenance_window = "wed:08:07-wed:08:37"
   vpc_security_group_ids       = [data.aws_security_group.security_group_ids.id]
 
-  storage_encrypted  = true
+  storage_encrypted = true
 
   skip_final_snapshot = true
 
