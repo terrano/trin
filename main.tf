@@ -26,47 +26,47 @@ provider "aws" {
 #
 #    Use this module to deploy aws networking infrastructure.
 #
-module "deploy_vpc" {
-  source = "./vpc"
-  region = "eu-west-1"
-  vpc_cidr = "192.168.0.0/16"
-}
+#module "deploy_vpc" {
+#  source = "./vpc"
+#  region = "eu-west-1"
+#  vpc_cidr = "192.168.0.0/16"
+#}
 
 #
 #    Use this module to deploy KMS manager.
 #
-#module "deploy_kms" {
-#  source                  = "./kms"
-#  deletion_window_in_days = 7
-#}
+module "deploy_security" {
+  source                  = "./security"
+  deletion_window_in_days = 7
+}
 
 #
 #    Use this module to deploy S3 Bucket.
 #
-module "deploy_s3_bucket" {
-  source                       = "./s3"
-  s3_bucket_knowledgebase_name = "trinity-knowledgebase"
-}
+#module "deploy_s3_bucket" {
+#  source                       = "./s3"
+#  s3_bucket_knowledgebase_name = "trinity-knowledgebase"
+#}
 
 #
 #    Use this module to deploy RDS Aurora
 #
-module "deploy_aurora" {
-  source                       = "./aurora"
-  region                       = "eu-west-1"
+#module "deploy_aurora" {
+#  source                       = "./aurora"
+#  region                       = "eu-west-1"
 
-  depends_on = [module.deploy_vpc]
+#  depends_on = [module.deploy_vpc]
 #  depends_on = [module.deploy_kms]
-}
+#}
 
 #
 #    Use this module to deploy Custom Bedrock
 #
-module "deploy_knowledgebase" {
-  source                       = "./bedrock"
-  region                       = "eu-west-1"
-  s3_bucket_knowledgebase_name = "trinity-knowledgebase"
+#module "deploy_knowledgebase" {
+#  source                       = "./bedrock"
+#  region                       = "eu-west-1"
+#  s3_bucket_knowledgebase_name = "trinity-knowledgebase"
 
-  depends_on = [module.deploy_s3_bucket]
-  #  depends_on = [module.deploy_kms]
-}
+#  depends_on = [module.deploy_s3_bucket]
+#  depends_on = [module.deploy_kms]
+#}
