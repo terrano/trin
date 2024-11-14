@@ -35,3 +35,13 @@ variable "db_credentials" {
     master_password = "password"
   }
 }
+
+variable "secret_manager_key_name" {
+  type    = string
+  default = "rds/admin6"
+}
+
+variable "credential_encryption_key_alias" {
+  type    = string
+  default = "alias/credential_encryption"
+}

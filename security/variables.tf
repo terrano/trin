@@ -1,9 +1,3 @@
-variable "db_username" {
-  description = "The database admin username"
-  type        = string
-  default     = "admin"
-}
-
 variable "deletion_window_in_days" {
   type    = number
   default = 20
@@ -29,22 +23,33 @@ variable "db_key_name" {
   default = "AuroraDBKey"
 }
 
-variable "secret_key_name" {
+variable "credential_encryption_name" {
   type    = string
-  default = "SecretKeyEncr"
+  default = "CredEncrKey"
 }
 
-variable "secret_key_description" {
+variable "credential_encryption_key_description" {
   type    = string
-  default = "RDS AuroraDB Encryption key"
+  default = "RDS AuroraDB Credentials Encryption key"
 }
 
-variable "secret_alias" {
+variable "credential_encryption_key_alias" {
   type    = string
-  default = "alias/secrets_encryption"
+  default = "alias/credential_encryption"
 }
 
 variable "secret_manager_description" {
   type    = string
   default = "RDS Admin Credentials"
+}
+
+variable "db_username" {
+  description = "The database admin username"
+  type        = string
+  default     = "db_admin"
+}
+
+variable "secret_manager_key_name" {
+  type    = string
+  default = "rds/admin6"
 }

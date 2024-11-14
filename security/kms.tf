@@ -19,9 +19,9 @@ resource "aws_kms_alias" "rds_key_alias" {
   target_key_id = join("", aws_kms_key.rds_key.*.id)
 }
 
-########  Key For Encrypting RDS Secrets  ########
-resource "aws_kms_key" "secrets_key" {
-  description = var.secret_key_description
+########  Key For Encrypting RDS Credentials  ########
+resource "aws_kms_key" "credential_encryption_key" {
+  description = var.credential_encryption_key_description
   policy = jsonencode({
     Version = "2012-10-17",
     Id      = "key-secrets-manager",
@@ -57,13 +57,14 @@ resource "aws_kms_key" "secrets_key" {
   })
 
   tags = {
-    Name : var.secret_key_name
+    Name : var.credential_encryption_name
   }
 }
 
 ########  Alias For Key For RDS Secrets Encryption  ########
-resource "aws_kms_alias" "secrets_key_alias" {
-  name          = var.secret_alias
-  target_key_id = join("", aws_kms_key.secrets_key.*.id)
+resource "aws_kms_alias" "credential_encryption_key_alias" {
+  name          = var.credential_encryption_key_alias
+  target_key_id = join("", aws_kms_key.credential_encryption_key.*.id)
 }
 
+ 

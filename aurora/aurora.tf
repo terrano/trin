@@ -51,6 +51,20 @@ data "aws_security_group" "security_group_ids" {
   depends_on = [data.aws_vpc.main_vpc_id]
 }
 
+########  Obtaining Credentials Reference  ########
+data "aws_secretsmanager_secret" "rds_admin_credentials" {
+  name = var.secret_manager_key_name
+}
+
+data "aws_secretsmanager_secret_version" "rds_admin_credentials_version" {
+  secret_id = data.aws_secretsmanager_secret.rds_admin_credentials.id
+}
+
+########  Obtaining KMS Reference  ########
+data "aws_kms_key" "credential_encryption_key" {
+  key_id = var.credential_encryption_key_alias
+}
+
 ########  Setting UP IAM Monitoring Role  ########
 resource "aws_iam_role" "aws_rds_monitoring_role" {
   name = "aws_rds_monitoring_role"
@@ -85,21 +99,25 @@ resource "aws_db_subnet_group" "db_subnet_group" {
 
 ########  Cluster Itself  ########
 resource "aws_rds_cluster" "main" {
-  cluster_identifier           = var.aurora_cluster_name
-  engine                       = "aurora-postgresql"
-  engine_version               = "16.1"
-  port                         = 5432
-  availability_zones           = [local.region_a, local.region_b]
-  database_name                = var.aurora_db_name
-  master_username              = var.db_credentials["master_username"]
-  master_password              = var.db_credentials["master_password"]
+  cluster_identifier = var.aurora_cluster_name
+  engine             = "aurora-postgresql"
+  engine_version     = "16.1"
+  port               = 5432
+  availability_zones = [local.region_a, local.region_b]
+  database_name      = var.aurora_db_name
+
+  master_username = jsondecode(data.aws_secretsmanager_secret_version.rds_admin_credentials_version.secret_string)["username"]
+  master_password = jsondecode(data.aws_secretsmanager_secret_version.rds_admin_credentials_version.secret_string)["password"]
+  kms_key_id      = data.aws_kms_key.credential_encryption_key.arn
+  
+  storage_encrypted = true
+
   db_subnet_group_name         = aws_db_subnet_group.db_subnet_group.id
   backup_retention_period      = 5
   preferred_backup_window      = "03:21-03:51"
   preferred_maintenance_window = "wed:08:07-wed:08:37"
   vpc_security_group_ids       = [data.aws_security_group.security_group_ids.id]
 
-  storage_encrypted = true
 
   skip_final_snapshot = true
 

@@ -26,11 +26,11 @@ provider "aws" {
 #
 #    Use this module to deploy aws networking infrastructure.
 #
-#module "deploy_vpc" {
-#  source = "./vpc"
-#  region = "eu-west-1"
-#  vpc_cidr = "192.168.0.0/16"
-#}
+module "deploy_vpc" {
+  source   = "./vpc"
+  region   = "eu-west-1"
+  vpc_cidr = "192.168.0.0/16"
+}
 
 #
 #    Use this module to deploy KMS manager.
@@ -51,13 +51,15 @@ module "deploy_security" {
 #
 #    Use this module to deploy RDS Aurora
 #
-#module "deploy_aurora" {
-#  source                       = "./aurora"
-#  region                       = "eu-west-1"
+module "deploy_aurora" {
+  source = "./aurora"
+  region = "eu-west-1"
 
-#  depends_on = [module.deploy_vpc]
-#  depends_on = [module.deploy_kms]
-#}
+  depends_on = [
+    module.deploy_vpc,
+    module.deploy_security
+  ]
+}
 
 #
 #    Use this module to deploy Custom Bedrock
