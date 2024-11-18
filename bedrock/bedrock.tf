@@ -2,15 +2,16 @@
 ###################################### BEDROCK KNOWLEDGEBASE ######################################
 ###################################################################################################
 
+data "aws_iam_role" "bedrock_knowledgebase_role" {
+ name = "${var.knowledge_name}_Role"
+}
 
 
-
-
-#resource "aws_bedrockagent_knowledge_base" "example" {
+#resource "aws_bedrockagent_knowledge_base" "base" {
 #  name     = var.knowledge_name
-#  role_arn = aws_iam_role.bedrock_role.arn
+#  role_arn = data.aws_iam_role.bedrock_knowledgebase_role.arn
 
-#  knowledge_base_configuration {
+# knowledge_base_configuration {
 #    vector_knowledge_base_configuration {
 #      embedding_model_arn = "arn:aws:bedrock:us-west-2::foundation-model/amazon.titan-embed-text-v1"
 #    }

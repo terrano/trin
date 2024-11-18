@@ -51,5 +51,5 @@ variable "db_username" {
 
 variable "secret_manager_key_name" {
   type    = string
-  default = "rds/admin6"
+  default = "rds/admin10"
 }

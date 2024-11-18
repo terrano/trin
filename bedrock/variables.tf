@@ -12,3 +12,13 @@ variable "s3_bucket_knowledgebase_name" {
   type    = string
   default = "trinity-knowledgebase-ingress"
 }
+
+variable "aurora_cluster_name" {
+  type    = string
+  default = "trinity-poc-cluster"
+}
+
+variable "secret_manager_key_name" {
+  type    = string
+  default = "rds/admin10"
+}

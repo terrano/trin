@@ -7,6 +7,9 @@ data "aws_caller_identity" "this" {}
 data "aws_s3_bucket" "s3_knowledgebase" {
   bucket = var.s3_bucket_knowledgebase_name
 }
+data "aws_secretsmanager_secret" "rds_admin_credentials" {
+  name = var.secret_manager_key_name
+}
 
 ########  Setting UP Role For KnowledgeBase  ########
 resource "aws_iam_role" "bedrock_knowledgebase_role" {
@@ -60,7 +63,7 @@ resource "aws_iam_policy" "bedrock_rds_policy" {
           "rds:DescribeDBClusters"
         ],
         "Resource" : [
-          "arn:aws:rds:${var.region}:${data.aws_caller_identity.this.account_id}:cluster:trinity-poc-cluster"
+          "arn:aws:rds:${var.region}:${data.aws_caller_identity.this.account_id}:cluster:${var.aurora_cluster_name}"
         ]
       },
       {
@@ -71,7 +74,7 @@ resource "aws_iam_policy" "bedrock_rds_policy" {
           "rds-data:ExecuteStatement"
         ],
         "Resource" : [
-          "arn:aws:rds:${var.region}:${data.aws_caller_identity.this.account_id}:cluster:trinity-poc-cluster"
+          "arn:aws:rds:${var.region}:${data.aws_caller_identity.this.account_id}:cluster:${var.aurora_cluster_name}"
         ]
       }
     ]
@@ -124,25 +127,25 @@ resource "aws_iam_policy" "bedrock_s3_policy" {
 }
 
 ########  Setting UP Policy For Secrets  ########
-#resource "aws_iam_policy" "bedrock_secrets_policy" {
-#  name = "${var.knowledge_name}_FM_Policy"
+resource "aws_iam_policy" "bedrock_secrets_policy" {
+  name = "${var.knowledge_name}_Secrets_Policy"
 
-#  policy = jsonencode({
-#    "Version": "2012-10-17",
-#    "Statement": [
-#        {
-#            "Sid": "SecretsManagerGetStatement",
-#            "Effect": "Allow",
-#            "Action": [
-#                "secretsmanager:GetSecretValue"
-#            ],
-#            "Resource": [
-#                "arn:aws:secretsmanager:us-east-1:730335619683:secret:rds!cluster-15a41bee-eb83-4fb1-845c-b77b168f02ab-Q8p1o3"
-#            ]
-#        }
-#    ]
-#})
-#}
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "SecretsManagerGetStatement",
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetSecretValue"
+            ],
+            "Resource": [
+                "${data.aws_secretsmanager_secret.rds_admin_credentials.id}"
+            ]
+        }
+    ]
+})
+}
 
 ########  Attaching Policies to Role ########
 resource "aws_iam_role_policy_attachment" "attach_bedrock_fm_policy" {
@@ -160,8 +163,7 @@ resource "aws_iam_role_policy_attachment" "attach_bedrock_s3_policy" {
   policy_arn = aws_iam_policy.bedrock_s3_policy.arn
 }
 
-
-
-
-
-
+resource "aws_iam_role_policy_attachment" "attach_bedrock_secrets_policy" {
+  role       = aws_iam_role.bedrock_knowledgebase_role.name
+  policy_arn = aws_iam_policy.bedrock_secrets_policy.arn
+}
