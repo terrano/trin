@@ -8,6 +8,11 @@ variable "enable_key_rotation" {
   default = true
 }
 
+variable "secret_manager_key_name" {
+  type    = string
+  default = "rds/admin"
+}
+
 variable "db_key_description" {
   type    = string
   default = "RDS AuroraDB Encryption key"
@@ -49,7 +54,3 @@ variable "db_username" {
   default     = "db_admin"
 }
 
-variable "secret_manager_key_name" {
-  type    = string
-  default = "rds/admin10"
-}

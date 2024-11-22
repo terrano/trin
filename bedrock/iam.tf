@@ -13,7 +13,7 @@ data "aws_secretsmanager_secret" "rds_admin_credentials" {
 
 ########  Setting UP Role For KnowledgeBase  ########
 resource "aws_iam_role" "bedrock_knowledgebase_role" {
-  name = "${var.knowledge_name}_Role"
+  name = "AmazonBedrockExecutionRoleForKnowledgeBase_Role"
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -38,7 +38,7 @@ resource "aws_iam_policy" "bedrock_fm_policy" {
       {
         "Effect" : "Allow",
         "Action" : [
-          "bedrock:InvokeModel"
+          "bedrock:*"
         ],
         "Resource" : [
           "arn:aws:bedrock:${var.region}::foundation-model/cohere.embed-english-v3",
@@ -131,20 +131,20 @@ resource "aws_iam_policy" "bedrock_secrets_policy" {
   name = "${var.knowledge_name}_Secrets_Policy"
 
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "SecretsManagerGetStatement",
-            "Effect": "Allow",
-            "Action": [
-                "secretsmanager:GetSecretValue"
-            ],
-            "Resource": [
-                "${data.aws_secretsmanager_secret.rds_admin_credentials.id}"
-            ]
-        }
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "SecretsManagerGetStatement",
+        "Effect" : "Allow",
+        "Action" : [
+          "secretsmanager:GetSecretValue"
+        ],
+        "Resource" : [
+          "${data.aws_secretsmanager_secret.rds_admin_credentials.id}"
+        ]
+      }
     ]
-})
+  })
 }
 
 ########  Attaching Policies to Role ########

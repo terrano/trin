@@ -12,6 +12,13 @@ provider "aws" {
   region = "eu-west-1"
 }
 
+locals {
+  secret_manager_key = "rds/admin16"
+  credential_encryption_key_alias = "alias/credential_encryption"
+}
+
+
+
 #
 #   1. Uncomment this section in order to deploy state file in aws which 
 #      will track current state of infrastructure and prevent simultaneous work.
@@ -26,11 +33,11 @@ provider "aws" {
 #
 #    Use this module to deploy aws networking infrastructure.
 #
-#module "deploy_vpc" {
-#  source   = "./vpc"
-#  region   = "eu-west-1"
-#  vpc_cidr = "192.168.0.0/16"
-#}
+module "deploy_vpc" {
+  source   = "./vpc"
+  region   = "eu-west-1"
+  vpc_cidr = "192.168.0.0/16"
+}
 
 #
 #    Use this module to deploy KMS manager.
@@ -38,6 +45,7 @@ provider "aws" {
 module "deploy_security" {
   source                  = "./security"
   deletion_window_in_days = 7
+  secret_manager_key_name = local.secret_manager_key
 }
 
 #
@@ -51,15 +59,17 @@ module "deploy_s3_bucket" {
 #
 #    Use this module to deploy RDS Aurora
 #
-#module "deploy_aurora" {
-#  source = "./aurora"
-#  region = "eu-west-1"
+module "deploy_aurora" {
+  source = "./aurora"
+  region = "eu-west-1"
+  secret_manager_key_name = local.secret_manager_key
+  credential_encryption_key_alias = local.credential_encryption_key_alias
 
-#  depends_on = [
-#    module.deploy_vpc,
-#    module.deploy_security
-#  ]
-#}
+  depends_on = [
+    module.deploy_vpc,
+    module.deploy_security
+  ]
+}
 
 #
 #    Use this module to deploy Custom Bedrock
@@ -68,6 +78,7 @@ module "deploy_knowledgebase" {
   source                       = "./bedrock"
   region                       = "eu-west-1"
   s3_bucket_knowledgebase_name = "trinity-knowledgebase"
+  secret_manager_key_name = local.secret_manager_key
 
-  depends_on = [module.deploy_s3_bucket]
+  depends_on = [module.deploy_s3_bucket, module.deploy_aurora, module.deploy_security]
 }

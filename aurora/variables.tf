@@ -8,6 +8,11 @@ locals {
   region_b = "${var.region}b"
 }
 
+variable "secret_manager_key_name" {
+  type    = string
+  default = "rds/admin"
+}
+
 variable "s3_bucket_knowleagebase_name" {
   type    = string
   default = "trinity-knowleadgebase-ingress"
@@ -34,11 +39,6 @@ variable "db_credentials" {
     master_username = "postgres"
     master_password = "password"
   }
-}
-
-variable "secret_manager_key_name" {
-  type    = string
-  default = "rds/admin10"
 }
 
 variable "credential_encryption_key_alias" {
