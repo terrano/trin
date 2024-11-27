@@ -13,7 +13,7 @@ data "aws_secretsmanager_secret" "rds_admin_credentials" {
 
 ########  Setting UP Role For KnowledgeBase  ########
 resource "aws_iam_role" "bedrock_knowledgebase_role" {
-  name = "AmazonBedrockExecutionRoleForKnowledgeBase_Role"
+  name = var.bedrock_knowledgebase_role
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -30,7 +30,7 @@ resource "aws_iam_role" "bedrock_knowledgebase_role" {
 
 ########  Setting UP Policy For Foundation Model  ########
 resource "aws_iam_policy" "bedrock_fm_policy" {
-  name = "${var.knowledge_name}_FM_Policy"
+  name = var.bedrock_fm_policy_name
 
   policy = jsonencode({
     "Version" : "2012-10-17",
@@ -51,7 +51,7 @@ resource "aws_iam_policy" "bedrock_fm_policy" {
 
 ########  Setting UP Policy For RDS  ########
 resource "aws_iam_policy" "bedrock_rds_policy" {
-  name = "${var.knowledge_name}_RDS_Policy"
+  name = var.bedrock_rds_policy_name
 
   policy = jsonencode({
     "Version" : "2012-10-17",
@@ -83,7 +83,7 @@ resource "aws_iam_policy" "bedrock_rds_policy" {
 
 ########  Setting UP Policy For S3  ########    
 resource "aws_iam_policy" "bedrock_s3_policy" {
-  name = "${var.knowledge_name}_S3_Policy"
+  name = var.bedrock_s3_policy_name
 
   policy = jsonencode({
     "Version" : "2012-10-17",
@@ -128,7 +128,7 @@ resource "aws_iam_policy" "bedrock_s3_policy" {
 
 ########  Setting UP Policy For Secrets  ########
 resource "aws_iam_policy" "bedrock_secrets_policy" {
-  name = "${var.knowledge_name}_Secrets_Policy"
+  name = "${var.s3_bucket_knowledgebase_name}_Secrets_Policy"
 
   policy = jsonencode({
     "Version" : "2012-10-17",

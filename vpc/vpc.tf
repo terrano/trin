@@ -36,23 +36,23 @@ resource "aws_subnet" "subnets" {
 ########  Setting UP NAT GW  ########
 ###################################################################################################
 ########  Allocating Network Interfaces for NAT GW  ########
-#resource "aws_eip" "nat" {
-#  tags = {
-#    Name = "External_NAT_GW"
-#  }
-#}
+resource "aws_eip" "nat" {
+  tags = {
+    Name = "External_NAT_GW"
+  }
+}
 
 ########  Create NAT GW  ########
-#resource "aws_nat_gateway" "nat_gateway" {
-#  allocation_id = aws_eip.nat.id
-#  subnet_id     = aws_subnet.subnets["public_rds_a"].id
+resource "aws_nat_gateway" "nat_gateway" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.subnets["public_rds_a"].id
 
-#  tags = {
-#    Name = "NAT Gateway"
-#  }
+  tags = {
+    Name = "NAT_Gateway"
+  }
 
-#  depends_on = [aws_vpc.main]
-#}
+  depends_on = [aws_vpc.main]
+}
 
 ###################################################################################################
 ########  Setting UP Routing Tables  ########
@@ -77,16 +77,16 @@ resource "aws_route_table" "public_rt" {
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.main.id
 
-#  route {
-#    cidr_block = var.default
-#    gateway_id = aws_nat_gateway.nat_gateway.id
-#  }
+  #  route {
+  #    cidr_block = var.default
+  #    gateway_id = aws_nat_gateway.nat_gateway.id
+  #  }
 
   tags = {
     Name = "Private_RT"
   }
 
-#  depends_on = [aws_nat_gateway.nat_gateway]
+  #  depends_on = [aws_nat_gateway.nat_gateway]
 }
 
 ########  Inner RT  ########

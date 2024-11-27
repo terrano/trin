@@ -4,9 +4,9 @@
 
 ########  Key For DB Encryption  ########
 resource "aws_kms_key" "rds_key" {
+  description             = var.db_key_description
   deletion_window_in_days = var.deletion_window_in_days
   enable_key_rotation     = var.enable_key_rotation
-  description             = var.db_key_description
 
   tags = {
     Name : var.db_key_name
@@ -21,7 +21,10 @@ resource "aws_kms_alias" "rds_key_alias" {
 
 ########  Key For Encrypting RDS Credentials  ########
 resource "aws_kms_key" "credential_encryption_key" {
-  description = var.credential_encryption_key_description
+  description             = var.credential_encryption_key_description
+  deletion_window_in_days = var.deletion_window_in_days
+  enable_key_rotation     = var.enable_key_rotation
+
   policy = jsonencode({
     Version = "2012-10-17",
     Id      = "key-secrets-manager",

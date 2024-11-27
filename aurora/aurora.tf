@@ -99,17 +99,18 @@ resource "aws_db_subnet_group" "db_subnet_group" {
 
 ########  Cluster Itself  ########
 resource "aws_rds_cluster" "main" {
-  cluster_identifier = var.aurora_cluster_name
-  engine             = "aurora-postgresql"
-  engine_version     = "16.1"
-  port               = 5432
-  availability_zones = [local.region_a, local.region_b]
-  database_name      = var.aurora_db_name
+  cluster_identifier   = var.aurora_cluster_name
+  database_name        = var.aurora_db_name
+  engine               = "aurora-postgresql"
+  engine_version       = "16.1"
+  port                 = 5432
+  enable_http_endpoint = true
+  availability_zones   = [local.region_a, local.region_b]
 
   master_username = jsondecode(data.aws_secretsmanager_secret_version.rds_admin_credentials_version.secret_string)["username"]
   master_password = jsondecode(data.aws_secretsmanager_secret_version.rds_admin_credentials_version.secret_string)["password"]
   kms_key_id      = data.aws_kms_key.credential_encryption_key.arn
-  
+
   storage_encrypted = true
 
   db_subnet_group_name         = aws_db_subnet_group.db_subnet_group.id

@@ -5,17 +5,37 @@ variable "region" {
 
 variable "foundation_model" {
   type    = string
-  default = "arn:aws:bedrock:us-west-2::foundation-model/amazon.titan-embed-text-v1"
+  default = "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-text-v1"
+}
+
+variable "bedrock_knowledgebase_role" {
+  type    = string
+  default = "bedrock_knowledgebase_role"
+}
+
+variable "bedrock_fm_policy_name" {
+  type    = string
+  default = "bedrock_fm_policy_FM_Policy"
+}
+
+variable "bedrock_rds_policy_name" {
+  type    = string
+  default = "bedrock_rds_policy"
+}
+
+variable "bedrock_s3_policy_name" {
+  type    = string
+  default = "bedrock_s3_policy"
+}
+
+variable "bedrock_secrets_policy" {
+  type    = string
+  default = "bedrock_secrets_policy_name"
 }
 
 variable "secret_manager_key_name" {
   type    = string
   default = "rds/admin"
-}
-
-variable "knowledge_name" {
-  type    = string
-  default = "trinity-knowledge-base"
 }
 
 variable "s3_bucket_knowledgebase_name" {

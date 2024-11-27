@@ -8,9 +8,14 @@ variable "enable_key_rotation" {
   default = true
 }
 
-variable "secret_manager_key_name" {
+variable "db_key_name" {
   type    = string
-  default = "rds/admin"
+  default = "AuroraDBEncyptionKey"
+}
+
+variable "credential_encryption_name" {
+  type    = string
+  default = "CredentialsEncyptionKey"
 }
 
 variable "db_key_description" {
@@ -18,29 +23,24 @@ variable "db_key_description" {
   default = "RDS AuroraDB Encryption key"
 }
 
-variable "db_alias" {
-  type    = string
-  default = "alias/rds_aurora_encryption"
-}
-
-variable "db_key_name" {
-  type    = string
-  default = "AuroraDBKey"
-}
-
-variable "credential_encryption_name" {
-  type    = string
-  default = "CredEncrKey"
-}
-
 variable "credential_encryption_key_description" {
   type    = string
   default = "RDS AuroraDB Credentials Encryption key"
 }
 
+variable "db_alias" {
+  type    = string
+  default = "alias/rds_aurora_encryption"
+}
+
 variable "credential_encryption_key_alias" {
   type    = string
-  default = "alias/credential_encryption"
+  default = "alias/rds_credential_encryption"
+}
+
+variable "secret_manager_key_name" {
+  type    = string
+  default = "rds/admin"
 }
 
 variable "secret_manager_description" {

@@ -2,11 +2,6 @@
 ###################################### BEDROCK KNOWLEDGEBASE ######################################
 ###################################################################################################
 
-########  Obtaining IAM Role Reference  ########
-data "aws_iam_role" "bedrock_knowledgebase_role" {
-  name = "${var.knowledge_name}_Role"
-}
-
 ########  Obtaining S3 Reference  ########
 data "aws_s3_bucket" "s3_bucket_knowledgebase" {
   bucket = var.s3_bucket_knowledgebase_name
@@ -17,15 +12,10 @@ data "aws_rds_cluster" "main" {
   cluster_identifier = var.aurora_cluster_name
 }
 
-########  Obtaining Credentials Reference  ########
-#data "aws_secretsmanager_secret" "rds_admin_credentials" {
-#  name = var.secret_manager_key_name
-#}
-
 ########  Setting UP Knowledgbase Itself  ########
 resource "aws_bedrockagent_knowledge_base" "s3base" {
-  name     = var.knowledge_name
-  role_arn = data.aws_iam_role.bedrock_knowledgebase_role.arn
+  name     = var.s3_bucket_knowledgebase_name
+  role_arn = aws_iam_role.bedrock_knowledgebase_role.arn
 
   knowledge_base_configuration {
     vector_knowledge_base_configuration {
@@ -52,12 +42,12 @@ resource "aws_bedrockagent_knowledge_base" "s3base" {
     }
   }
 
-  depends_on = [ aws_iam_role.bedrock_knowledgebase_role ]
+  depends_on = [aws_iam_role.bedrock_knowledgebase_role]
 }
 
 resource "aws_bedrockagent_data_source" "s3_datasource" {
   knowledge_base_id = aws_bedrockagent_knowledge_base.s3base.id
-  name = var.s3_bucket_knowledgebase_name
+  name              = var.s3_bucket_knowledgebase_name
   data_source_configuration {
     type = "S3"
     s3_configuration {
@@ -65,5 +55,5 @@ resource "aws_bedrockagent_data_source" "s3_datasource" {
     }
   }
 
-  depends_on = [ aws_bedrockagent_knowledge_base.s3base ]
+  depends_on = [aws_bedrockagent_knowledge_base.s3base]
 }

@@ -8,16 +8,6 @@ locals {
   region_b = "${var.region}b"
 }
 
-variable "secret_manager_key_name" {
-  type    = string
-  default = "rds/admin"
-}
-
-variable "s3_bucket_knowleagebase_name" {
-  type    = string
-  default = "trinity-knowleadgebase-ingress"
-}
-
 variable "aurora_cluster_name" {
   type    = string
   default = "trinity-poc-cluster"
@@ -28,9 +18,15 @@ variable "aurora_db_name" {
   default = "auroradb"
 }
 
+variable "secret_manager_key_name" {
+  type    = string
+  default = "rds/admin"
+}
+
+
 variable "subnet_group_name" {
   type    = string
-  default = "rds-ec2-db-subnet-group-1"
+  default = "test-rds-ec2-db-subnet-group-1"
 }
 
 variable "db_credentials" {
