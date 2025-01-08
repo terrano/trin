@@ -51,6 +51,16 @@ variable "subnets_data" {
       name              = "Public-B",
       cidr_block        = "",
       availability_zone = ""
+    },
+    "private_a" = {
+      name              = "Private-A",
+      cidr_block        = "",
+      availability_zone = ""
+    },
+    "private_b" = {
+      name              = "Private-B",
+      cidr_block        = "",
+      availability_zone = ""
     }
   }
 }
@@ -61,7 +71,7 @@ locals {
     subnet_key => {
       name              = subnet_value.name,
       cidr_block        = "${cidrsubnet(var.vpc_cidr, 8, index(keys(var.subnets_data), subnet_key))}",
-      availability_zone = subnet_key == "public_a" ? local.region_a : local.region_b
+      availability_zone = subnet_key == "public_a" || subnet_key == "private_a" ? local.region_a : local.region_b
     }
   }
 }
@@ -76,7 +86,8 @@ variable "tags" {
 variable "ohio_ec2" {
   description = "Amazon machine image to use for ec2 instance id in Ohio"
   type        = string
-  default     = "ami-036841078a4b68e14"
+  #  default     = "ami-036841078a4b68e14"
+  default = "ami-03b054aa09816a14a"
 }
 
 variable "python_web_server" {
@@ -88,7 +99,31 @@ variable "python_web_server" {
               EOF
 }
 
+variable "install_aws_docker" {
+  type    = string
+  default = <<-EOF
+              #!/bin/bash
+              sudo apt-get update -y
+              sudo apt-get install -y docker.io
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              sudo usermod -aG docker ubuntu
+
+              sudo apt update
+              sudo apt install -y python3 python3-pip unzip
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip awscliv2.zip
+              sudo ./aws/install
+
+              EOF  
+}
+
 variable "ssm_policy_arn" {
   type    = string
   default = "arn:aws:iam::aws:policy/AmazonSSMManagedEC2InstanceDefaultPolicy"
+}
+
+variable "ecr_policy_arn" {
+  type    = string
+  default = "arn:aws:iam::211125418581:policy/push_to_ecr"
 }

@@ -33,6 +33,7 @@ resource "aws_subnet" "subnets" {
 
   depends_on = [aws_vpc.main]
 }
+
 ###################################################################################################
 ########  Setting UP Routing Tables  ########
 ###################################################################################################
@@ -52,11 +53,22 @@ resource "aws_route_table" "public_rt" {
   depends_on = [aws_internet_gateway.gw]
 }
 
+########  Private RT  ########
+resource "aws_route_table" "private_rt" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "Private_RT"
+  }
+}
+
 ########  RT Mapping  ########
 locals {
   rt_list = {
-    "public_a" = aws_route_table.public_rt.id,
-    "public_b" = aws_route_table.public_rt.id
+    "public_a"  = aws_route_table.public_rt.id,
+    "public_b"  = aws_route_table.public_rt.id,
+    "private_a" = aws_route_table.private_rt.id,
+    "private_b" = aws_route_table.private_rt.id
   }
 }
 

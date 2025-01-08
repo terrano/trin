@@ -19,9 +19,10 @@ resource "aws_iam_role" "ec2_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "ec2_role_attachment" {
+resource "aws_iam_role_policy_attachment" "ec2_role_attachments" {
+  for_each   = toset([var.ssm_policy_arn, var.ecr_policy_arn])
   role       = aws_iam_role.ec2_role.name
-  policy_arn = var.ssm_policy_arn
+  policy_arn = each.value
 }
 
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
@@ -33,46 +34,51 @@ resource "aws_iam_instance_profile" "ec2_instance_profile" {
 ########################################### SSM ENDPOINTS #########################################
 ###################################################################################################
 resource "aws_vpc_endpoint" "ssm" {
+  for_each          = toset(["com.amazonaws.us-east-2.ssm", "com.amazonaws.us-east-2.ssmmessages", "com.amazonaws.us-east-2.ec2messages"])
   vpc_id            = aws_vpc.main.id
-  service_name      = "com.amazonaws.us-east-2.ssm"
+  service_name      = each.value
   vpc_endpoint_type = "Interface"
 
   subnet_ids = [
-    aws_subnet.subnets["public_a"].id, aws_subnet.subnets["public_b"].id
+    aws_subnet.subnets["private_a"].id, aws_subnet.subnets["private_b"].id
   ]
 
-  security_group_ids = [aws_security_group.ec2.id]
+  security_group_ids = [aws_security_group.permit_all.id]
 
   private_dns_enabled = true
 }
 
-resource "aws_vpc_endpoint" "ssmmessages" {
+###################################################################################################
+########################################### ECR ENDPOINTS #########################################
+###################################################################################################
+resource "aws_vpc_endpoint" "ecr_api" {
+  for_each          = toset(["com.amazonaws.us-east-2.ecr.api", "com.amazonaws.us-east-2.ecr.dkr"])
   vpc_id            = aws_vpc.main.id
-  service_name      = "com.amazonaws.us-east-2.ssmmessages"
+  service_name      = each.value
   vpc_endpoint_type = "Interface"
 
   subnet_ids = [
-    aws_subnet.subnets["public_a"].id, aws_subnet.subnets["public_b"].id
+    aws_subnet.subnets["private_a"].id, aws_subnet.subnets["private_b"].id
   ]
 
-  security_group_ids = [aws_security_group.ec2.id]
+  security_group_ids = [aws_security_group.permit_all.id]
 
   private_dns_enabled = true
 }
 
-resource "aws_vpc_endpoint" "ec2messages" {
+resource "aws_vpc_endpoint" "ecr_s3" {
   vpc_id            = aws_vpc.main.id
-  service_name      = "com.amazonaws.us-east-2.ec2messages"
-  vpc_endpoint_type = "Interface"
+  service_name      = "com.amazonaws.us-east-2.s3"
+  vpc_endpoint_type = "Gateway"
 
-  subnet_ids = [
-    aws_subnet.subnets["public_a"].id, aws_subnet.subnets["public_b"].id
-  ]
-
-  security_group_ids = [aws_security_group.ec2.id]
-
-  private_dns_enabled = true
+  private_dns_enabled = false
 }
+
+resource "aws_vpc_endpoint_route_table_association" "ecr_s3_rt" {
+  route_table_id  = aws_route_table.private_rt.id
+  vpc_endpoint_id = aws_vpc_endpoint.ecr_s3.id
+}
+
 ###################################################################################################
 ############################################# INSTANCES ###########################################
 ###################################################################################################
@@ -81,9 +87,9 @@ resource "aws_instance" "first" {
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.ec2.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
-  subnet_id              = aws_subnet.subnets["public_a"].id
+  subnet_id              = aws_subnet.subnets["private_a"].id
 
-  user_data = var.python_web_server
+  #user_data = var.python_web_server
 
   tags = {
     Name = "WEB-A"
@@ -97,9 +103,9 @@ resource "aws_instance" "second" {
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.ec2.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
-  subnet_id              = aws_subnet.subnets["public_b"].id
+  subnet_id              = aws_subnet.subnets["private_b"].id
 
-  user_data = var.python_web_server
+  #user_data = var.python_web_server
 
   tags = {
     Name = "WEB-B"
@@ -111,33 +117,9 @@ resource "aws_instance" "second" {
 ###################################################################################################
 ########################################## LOAD BALANCER ##########################################
 ###################################################################################################
-resource "aws_security_group" "lb_rules" {
-  name        = "lb_communication_rules"
-  description = "Control load balancer traffic"
-  vpc_id      = aws_vpc.main.id
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = [var.default]
-  }
-
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = [var.default]
-  }
-
-  tags = {
-    Name = "lb_sg"
-  }
-}
-
 resource "aws_lb_listener" "front_end" {
   load_balancer_arn = aws_lb.load_balancer.arn
-  port              = 80
+  port              = 8888
   protocol          = "HTTP"
 
   default_action {
@@ -151,8 +133,8 @@ resource "aws_lb_listener" "front_end" {
 }
 
 resource "aws_lb_target_group" "tg_instnaces" {
-  name     = "tg"
-  port     = 80
+  name     = "petclinic-tg"
+  port     = 8080
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
 
