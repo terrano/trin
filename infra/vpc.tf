@@ -7,16 +7,24 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  tags = var.tags
+  tags = merge(
+    var.network_tag,
+    {
+      Type = "VPC"
+    }
+  )
 }
 
 ########  Internet GW  ########
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
-    Name = "IGW"
-  }
+  tags = merge(
+    var.network_tag,
+    {
+      Type = "IGW"
+    }
+  )
 
   depends_on = [aws_vpc.main]
 }
@@ -27,9 +35,14 @@ resource "aws_subnet" "subnets" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = each.value.cidr_block
   availability_zone = each.value.availability_zone
-  tags = {
-    Name = each.value.name
-  }
+
+  tags = merge(
+    var.network_tag,
+    {
+      Name = each.value.name,
+      Type = "Subnet"
+    }
+  )
 
   depends_on = [aws_vpc.main]
 }
@@ -46,9 +59,13 @@ resource "aws_route_table" "public_rt" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
-  tags = {
-    Name = "Public_RT"
-  }
+  tags = merge(
+    var.network_tag,
+    {
+      Type = "Route_Table",
+      Name = "Public_RT"
+    }
+  )
 
   depends_on = [aws_internet_gateway.gw]
 }
@@ -57,9 +74,14 @@ resource "aws_route_table" "public_rt" {
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
-    Name = "Private_RT"
-  }
+  tags = merge(
+    var.network_tag,
+    {
+      Type = "Route_Table",
+      Name = "Private_RT"
+    }
+  )
+
 }
 
 ########  RT Mapping  ########

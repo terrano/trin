@@ -76,18 +76,10 @@ locals {
   }
 }
 
-variable "tags" {
-  type = map(string)
-  default = {
-    name = "spring-petclinic"
-  }
-}
-
 variable "ohio_ec2" {
   description = "Amazon machine image to use for ec2 instance id in Ohio"
   type        = string
-  #  default     = "ami-036841078a4b68e14"
-  default = "ami-03b054aa09816a14a"
+  default     = "ami-03b054aa09816a14a"
 }
 
 variable "python_web_server" {
@@ -123,7 +115,35 @@ variable "ssm_policy_arn" {
   default = "arn:aws:iam::aws:policy/AmazonSSMManagedEC2InstanceDefaultPolicy"
 }
 
-variable "ecr_policy_arn" {
+variable "docker_image_arn" {
   type    = string
-  default = "arn:aws:iam::211125418581:policy/push_to_ecr"
+  default = "arn:aws:ecr:us-east-2:211125418581:repository/spring-petclinic-image"
+}
+
+variable "network_tag" {
+  type = map(string)
+  default = {
+    component = "network"
+  }
+}
+
+variable "security_tag" {
+  type = map(string)
+  default = {
+    component = "security"
+  }
+}
+
+variable "policy_role_tag" {
+  type = map(string)
+  default = {
+    component = "iam"
+  }
+}
+
+variable "ec2_tag" {
+  type = map(string)
+  default = {
+    component = "computing"
+  }
 }

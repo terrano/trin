@@ -10,4 +10,12 @@ terraform {
 
 provider "aws" {
   region = var.region
+
+  default_tags {
+    tags = {
+      project            = "spring-petclinic"
+      Environment        = terraform.workspace
+      ManagedByTerraform = "True"
+    }
+  }
 }

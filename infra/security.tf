@@ -25,9 +25,13 @@ resource "aws_network_acl" "public_nacl" {
     action     = "allow"
   }
 
-  tags = {
-    Name = "public_nacl"
-  }
+  tags = merge(
+    var.security_tag,
+    {
+      Name = "public_nacl",
+      Type = "NetworkACL"
+    }
+  )
 
   depends_on = [aws_vpc.main]
 }
@@ -35,77 +39,99 @@ resource "aws_network_acl" "public_nacl" {
 ###################################################################################################
 ########  Setting UP Security Groups  ########
 ###################################################################################################
+resource "aws_security_group" "permit_internal" {
+  name        = "permit_inside_all"
+  description = "permit all within vpc"
+  vpc_id      = aws_vpc.main.id
+
+  tags = merge(
+    var.security_tag,
+    {
+      Name = "inside_all_sg",
+      Type = "SecurityGroup"
+    }
+  )
+}
+
+resource "aws_security_group_rule" "permit_ingress" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.permit_internal.id
+  cidr_blocks       = [var.default]
+}
+
+resource "aws_security_group_rule" "permit_engress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.permit_internal.id
+  cidr_blocks       = [var.default]
+}
+###################################################################################################
 resource "aws_security_group" "lb_rules" {
   name        = "lb_communication_rules"
   description = "Control load balancer traffic"
   vpc_id      = aws_vpc.main.id
 
-  egress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = [var.default]
-  }
-
-  ingress {
-    from_port   = 8888
-    to_port     = 8888
-    protocol    = "tcp"
-    cidr_blocks = [var.default]
-  }
-
-  tags = {
-    Name = "lb_sg"
-  }
+  tags = merge(
+    var.security_tag,
+    {
+      Name = "LoadBalancer",
+      Type = "SecurityGroup"
+    }
+  )
 }
 
-resource "aws_security_group" "ec2" {
+resource "aws_security_group_rule" "lb_ingress" {
+  type              = "ingress"
+  from_port         = 8888
+  to_port           = 8888
+  protocol          = "tcp"
+  security_group_id = aws_security_group.lb_rules.id
+  cidr_blocks       = [var.default]
+}
+
+resource "aws_security_group_rule" "lb_egress" {
+  type                     = "egress"
+  from_port                = 8080
+  to_port                  = 8080
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.lb_rules.id
+  source_security_group_id = aws_security_group.ec2_rules.id
+}
+
+###################################################################################################
+resource "aws_security_group" "ec2_rules" {
   name        = "ec2"
   description = "ec2 sg"
   vpc_id      = aws_vpc.main.id
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = [var.default]
-  }
-
-  ingress {
-    from_port = 8080
-    to_port   = 8080
-    protocol  = "tcp"
-    cidr_blocks = [
-      local.actual_subnets_data["public_a"].cidr_block,
-      local.actual_subnets_data["public_b"].cidr_block
-    ]
-  }
-
-  tags = {
-    Name = "ec2_sg"
-  }
+  tags = merge(
+    var.security_tag,
+    {
+      Name = "EC2",
+      Type = "SecurityGroup"
+    }
+  )
 }
 
-resource "aws_security_group" "permit_all" {
-  name        = "2-endpoints"
-  description = "permit all for endpoints"
-  vpc_id      = aws_vpc.main.id
+resource "aws_security_group_rule" "ec2_ingress" {
+  type                     = "ingress"
+  from_port                = 8080
+  to_port                  = 8080
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.ec2_rules.id
+  source_security_group_id = aws_security_group.lb_rules.id
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = [var.default]
-  }
-
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = [var.default]
-  }
-
-  tags = {
-    Name = "permit_all"
-  }
+resource "aws_security_group_rule" "ec2_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.ec2_rules.id
+  cidr_blocks       = [var.default]
 }
