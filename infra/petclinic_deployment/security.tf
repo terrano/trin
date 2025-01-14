@@ -28,7 +28,7 @@ resource "aws_network_acl" "public_nacl" {
   tags = merge(
     var.security_tag,
     {
-      Name = "public_nacl",
+      Name = join("-", ["${local.prj_full_name}", "public_nacl"])
       Type = "NetworkACL"
     }
   )
@@ -40,14 +40,14 @@ resource "aws_network_acl" "public_nacl" {
 ########  Setting UP Security Groups  ########
 ###################################################################################################
 resource "aws_security_group" "permit_internal" {
-  name        = "permit_inside_all"
+  name        =  join("-", ["${local.prj_full_name}", "permit-inside-all"])
   description = "permit all within vpc"
   vpc_id      = aws_vpc.main.id
 
   tags = merge(
     var.security_tag,
     {
-      Name = "inside_all_sg",
+      Name = join("-", ["${local.prj_full_name}", "inside_all_sg"])
       Type = "SecurityGroup"
     }
   )
@@ -79,7 +79,7 @@ resource "aws_security_group" "lb_rules" {
   tags = merge(
     var.security_tag,
     {
-      Name = "LoadBalancer",
+      Name = join("-", ["${local.prj_full_name}", "LoadBalancerSG"])
       Type = "SecurityGroup"
     }
   )
@@ -112,7 +112,7 @@ resource "aws_security_group" "ec2_rules" {
   tags = merge(
     var.security_tag,
     {
-      Name = "EC2",
+      Name = join("-", ["${local.prj_full_name}", "EC2-SG-Rules"])
       Type = "SecurityGroup"
     }
   )

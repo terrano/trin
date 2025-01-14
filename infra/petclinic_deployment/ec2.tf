@@ -2,7 +2,7 @@
 ########################################## SSM ROLE ##########################################
 ###################################################################################################
 resource "aws_iam_role" "ec2_role" {
-  name = "ec2_role"
+  name = join("-", ["${local.prj_full_name}", "EC2_IAM_Role"])
 
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
@@ -22,14 +22,14 @@ resource "aws_iam_role" "ec2_role" {
     var.policy_role_tag,
     var.security_tag,
     {
-      Name = "EC2_IAM_Role"
+      Name = join("-", ["${local.prj_full_name}", "EC2_IAM_Role"])
       Type = "Role"
     }
   )
 }
 
 resource "aws_iam_policy" "get_image" {
-  name = "get_from_ecr"
+  name = join("-", ["${local.prj_full_name}", "get-image-ecr"])
 
   policy = jsonencode({
     "Version" : "2012-10-17",
@@ -47,7 +47,7 @@ resource "aws_iam_policy" "get_image" {
           "ecr:DescribeRepositories",
           "ecr:GetDownloadUrlForLayer"
         ],
-        "Resource" : var.docker_image_arn
+        "Resource" : local.docker_image_arn
       }
     ]
   })
@@ -56,7 +56,7 @@ resource "aws_iam_policy" "get_image" {
     var.policy_role_tag,
     var.security_tag,
     {
-      Name = "Policy_EC2_Get_Image_ECR"
+      Name =  join("-", ["${local.prj_full_name}", "get-image-ecr"])
       Type = "Policy"
     }
   )
@@ -73,7 +73,7 @@ resource "aws_iam_role_policy_attachment" "ec2_role_attachments_ecr" {
 }
 
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
-  name = "ssm-ec2-role"
+  name =  join("-", ["${local.prj_full_name}", "ssm-ec2-role"])
   role = aws_iam_role.ec2_role.name
 }
 
@@ -81,7 +81,8 @@ resource "aws_iam_instance_profile" "ec2_instance_profile" {
 ########################################### SSM ENDPOINTS #########################################
 ###################################################################################################
 resource "aws_vpc_endpoint" "ssm" {
-  for_each          = toset(["com.amazonaws.us-east-2.ssm", "com.amazonaws.us-east-2.ssmmessages", "com.amazonaws.us-east-2.ec2messages"])
+#  for_each          = toset(["com.amazonaws.us-east-2.ssm", "com.amazonaws.us-east-2.ssmmessages", "com.amazonaws.us-east-2.ec2messages"])
+  for_each          = var.region_config["${var.region}"].ssm_endpoints
   vpc_id            = aws_vpc.main.id
   service_name      = each.value
   vpc_endpoint_type = "Interface"
@@ -98,7 +99,7 @@ resource "aws_vpc_endpoint" "ssm" {
     var.policy_role_tag,
     var.network_tag,
     {
-      Name = "SSM_Communication"
+      Name = join("-", ["${local.prj_full_name}", "SSM_Communication"])
       Type = "Endpoint"
     }
   )
@@ -108,7 +109,8 @@ resource "aws_vpc_endpoint" "ssm" {
 ########################################### ECR ENDPOINTS #########################################
 ###################################################################################################
 resource "aws_vpc_endpoint" "ecr_api" {
-  for_each          = toset(["com.amazonaws.us-east-2.ecr.api", "com.amazonaws.us-east-2.ecr.dkr"])
+#  for_each          = toset(["com.amazonaws.us-east-2.ecr.api", "com.amazonaws.us-east-2.ecr.dkr"])
+  for_each          = var.region_config["${var.region}"].ecr_endpoints
   vpc_id            = aws_vpc.main.id
   service_name      = each.value
   vpc_endpoint_type = "Interface"
@@ -125,7 +127,7 @@ resource "aws_vpc_endpoint" "ecr_api" {
     var.policy_role_tag,
     var.network_tag,
     {
-      Name = "ECR_Communication"
+      Name = join("-", ["${local.prj_full_name}", "ECR_Communication"])
       Type = "Endpoint"
     }
   )
@@ -133,7 +135,7 @@ resource "aws_vpc_endpoint" "ecr_api" {
 
 resource "aws_vpc_endpoint" "ecr_s3" {
   vpc_id            = aws_vpc.main.id
-  service_name      = "com.amazonaws.us-east-2.s3"
+  service_name      = var.region_config["${var.region}"].ecr_s3_endpoint
   vpc_endpoint_type = "Gateway"
 
   private_dns_enabled = false
@@ -142,7 +144,7 @@ resource "aws_vpc_endpoint" "ecr_s3" {
     var.policy_role_tag,
     var.network_tag,
     {
-      Name = "S3_Communication"
+      Name = join("-", ["${local.prj_full_name}", "S3_Communication"])
       Type = "Endpoint"
     }
   )
@@ -157,7 +159,7 @@ resource "aws_vpc_endpoint_route_table_association" "ecr_s3_rt" {
 ############################################# INSTANCES ###########################################
 ###################################################################################################
 resource "aws_instance" "first" {
-  ami                    = var.ohio_ec2
+  ami                    = local.ami_id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.ec2_rules.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
@@ -166,16 +168,18 @@ resource "aws_instance" "first" {
   tags = merge(
     var.ec2_tag,
     {
-      Name = "WEB-A"
+      Name = join("-", ["${local.prj_full_name}", "WEB-A"])
       Type = "EC2"
     }
   )
+
+  user_data = var.python_web_server
 
   depends_on = [aws_iam_instance_profile.ec2_instance_profile]
 }
 
 resource "aws_instance" "second" {
-  ami                    = var.ohio_ec2
+  ami                    = local.ami_id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.ec2_rules.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
@@ -184,10 +188,12 @@ resource "aws_instance" "second" {
   tags = merge(
     var.ec2_tag,
     {
-      Name = "WEB-B"
+      Name = join("-", ["${local.prj_full_name}", "WEB-B"])
       Type = "EC2"
     }
   )
+
+  user_data = var.python_web_server
 
   depends_on = [aws_iam_instance_profile.ec2_instance_profile]
 }
@@ -212,14 +218,14 @@ resource "aws_lb_listener" "front_end" {
   tags = merge(
     var.network_tag,
     {
-      Name = "front_end"
+      Name = join("-", ["${local.prj_full_name}", "front_end"])
       Type = "LB-FrontEnd"
     }
   )
 }
 
 resource "aws_lb_target_group" "tg_instnaces" {
-  name     = "petclinic-tg"
+  name     = join("-", ["${local.prj_full_name}", "tg"])
   port     = 8080
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
@@ -237,7 +243,7 @@ resource "aws_lb_target_group" "tg_instnaces" {
   tags = merge(
     var.network_tag,
     {
-      Name = "petclinic-tg"
+      Name = join("-", ["${local.prj_full_name}", "target-group"])
       Type = "TargetGroup"
     }
   )
@@ -273,14 +279,14 @@ resource "aws_lb_listener_rule" "listener_rule" {
   tags = merge(
     var.network_tag,
     {
-      Name = "spring-petclinic-lb-listener"
+      Name = join("-", ["${local.prj_full_name}", "load-balancer", "listener"])
       Type = "LoadBalancerListener"
     }
   )
 }
 
 resource "aws_lb" "load_balancer" {
-  name               = "spring-petclinic-lb"
+  name               = join("-", ["${local.prj_full_name}", "lb"])
   load_balancer_type = "application"
   subnets            = [aws_subnet.subnets["public_a"].id, aws_subnet.subnets["public_b"].id]
   security_groups    = [aws_security_group.lb_rules.id]
@@ -288,7 +294,7 @@ resource "aws_lb" "load_balancer" {
   tags = merge(
     var.network_tag,
     {
-      Name = "spring-petclinic-lb"
+      Name = join("-", ["${local.prj_full_name}", "load-balancer"])
       Type = "LoadBalancer"
     }
   )
