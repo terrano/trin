@@ -28,6 +28,7 @@ resource "aws_network_acl" "public_nacl" {
   tags = merge(
     var.security_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "public_nacl"])
       Type = "NetworkACL"
     }
@@ -47,6 +48,7 @@ resource "aws_security_group" "permit_internal" {
   tags = merge(
     var.security_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "inside_all_sg"])
       Type = "SecurityGroup"
     }
@@ -79,6 +81,7 @@ resource "aws_security_group" "lb_rules" {
   tags = merge(
     var.security_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "LoadBalancerSG"])
       Type = "SecurityGroup"
     }
@@ -112,6 +115,7 @@ resource "aws_security_group" "ec2_rules" {
   tags = merge(
     var.security_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "EC2-SG-Rules"])
       Type = "SecurityGroup"
     }

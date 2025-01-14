@@ -10,6 +10,7 @@ resource "aws_vpc" "main" {
   tags = merge(
     var.network_tag,
     {
+      uid = var.prj_id
       Type = "VPC"
     }
   )
@@ -22,6 +23,7 @@ resource "aws_internet_gateway" "gw" {
   tags = merge(
     var.network_tag,
     {
+      uid = var.prj_id
       Type = "IGW"
     }
   )
@@ -39,7 +41,8 @@ resource "aws_subnet" "subnets" {
   tags = merge(
     var.network_tag,
     {
-      Name = each.value.name,
+      uid = var.prj_id
+      Name = each.value.name
       Type = "Subnet"
     }
   )
@@ -62,7 +65,8 @@ resource "aws_route_table" "public_rt" {
   tags = merge(
     var.network_tag,
     {
-      Type = "Route_Table",
+      uid = var.prj_id
+      Type = "Route_Table"
       Name = "Public_RT"
     }
   )
@@ -77,7 +81,8 @@ resource "aws_route_table" "private_rt" {
   tags = merge(
     var.network_tag,
     {
-      Type = "Route_Table",
+      uid = var.prj_id
+      Type = "Route_Table"
       Name = "Private_RT"
     }
   )

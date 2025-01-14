@@ -22,6 +22,7 @@ resource "aws_iam_role" "ec2_role" {
     var.policy_role_tag,
     var.security_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "EC2_IAM_Role"])
       Type = "Role"
     }
@@ -56,6 +57,7 @@ resource "aws_iam_policy" "get_image" {
     var.policy_role_tag,
     var.security_tag,
     {
+      uid = var.prj_id
       Name =  join("-", ["${local.prj_full_name}", "get-image-ecr"])
       Type = "Policy"
     }
@@ -99,6 +101,7 @@ resource "aws_vpc_endpoint" "ssm" {
     var.policy_role_tag,
     var.network_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "SSM_Communication"])
       Type = "Endpoint"
     }
@@ -127,6 +130,7 @@ resource "aws_vpc_endpoint" "ecr_api" {
     var.policy_role_tag,
     var.network_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "ECR_Communication"])
       Type = "Endpoint"
     }
@@ -144,6 +148,7 @@ resource "aws_vpc_endpoint" "ecr_s3" {
     var.policy_role_tag,
     var.network_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "S3_Communication"])
       Type = "Endpoint"
     }
@@ -168,6 +173,7 @@ resource "aws_instance" "first" {
   tags = merge(
     var.ec2_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "WEB-A"])
       Type = "EC2"
     }
@@ -188,6 +194,7 @@ resource "aws_instance" "second" {
   tags = merge(
     var.ec2_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "WEB-B"])
       Type = "EC2"
     }
@@ -218,6 +225,7 @@ resource "aws_lb_listener" "front_end" {
   tags = merge(
     var.network_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "front_end"])
       Type = "LB-FrontEnd"
     }
@@ -243,6 +251,7 @@ resource "aws_lb_target_group" "tg_instnaces" {
   tags = merge(
     var.network_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "target-group"])
       Type = "TargetGroup"
     }
@@ -279,6 +288,7 @@ resource "aws_lb_listener_rule" "listener_rule" {
   tags = merge(
     var.network_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "load-balancer", "listener"])
       Type = "LoadBalancerListener"
     }
@@ -294,6 +304,7 @@ resource "aws_lb" "load_balancer" {
   tags = merge(
     var.network_tag,
     {
+      uid = var.prj_id
       Name = join("-", ["${local.prj_full_name}", "load-balancer"])
       Type = "LoadBalancer"
     }

@@ -55,11 +55,6 @@ variable "ec2_tag" {
   }
 }
 
-locals {
-  region_a = "${var.region}a"
-  region_b = "${var.region}b"
-}
-
 ########  Actual Subnets Info ########
 variable "subnets_data" {
   description = "Default subnets information."
@@ -94,6 +89,11 @@ variable "subnets_data" {
 }
 
 locals {
+  region_a = "${var.region}a"
+  region_b = "${var.region}b"
+}
+
+ locals {
   actual_subnets_data = {
     for subnet_key, subnet_value in var.subnets_data :
     subnet_key => {
