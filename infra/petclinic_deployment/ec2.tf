@@ -179,8 +179,6 @@ resource "aws_instance" "first" {
     }
   )
 
-  user_data = var.python_web_server
-
   depends_on = [aws_iam_instance_profile.ec2_instance_profile]
 }
 
@@ -199,8 +197,6 @@ resource "aws_instance" "second" {
       Type = "EC2"
     }
   )
-
-  user_data = var.python_web_server
 
   depends_on = [aws_iam_instance_profile.ec2_instance_profile]
 }

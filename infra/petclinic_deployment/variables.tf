@@ -130,7 +130,7 @@ variable "region_config" {
     },
     "eu-central-1" = {
       ami_id = "ami-0e35239b37b98687a"
-      docker_image_arn   = "arn:aws:ecr:us-east-2:211125418581:repository/spring-petclinic-image"
+      docker_image_arn   = "arn:aws:ecr:eu-central-1:211125418581:repository/spring-petclinic-image"
       ssm_endpoints = ["com.amazonaws.eu-central-1.ssm", "com.amazonaws.eu-central-1.ssmmessages", "com.amazonaws.eu-central-1.ec2messages"]
       ecr_endpoints = ["com.amazonaws.eu-central-1.ecr.api", "com.amazonaws.eu-central-1.ecr.dkr"]
       ecr_s3_endpoint = "com.amazonaws.eu-central-1.s3"
