@@ -14,7 +14,7 @@ resource "aws_launch_template" "spc_lt" {
 
   image_id = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
 
-  instance_type = var.image_types["t2small"]
+  instance_type = var.image_types["t2micro"]
 
   vpc_security_group_ids = [aws_security_group.permit_internal.id]
 

@@ -83,6 +83,13 @@ variable "esc_agent_cluster_name" {
   type    = string
   default = <<-EOF
               #!/bin/bash
+              mkdir /my
+              cd /my
+              aws s3 cp s3://cloudwatch-agent-4-ec2/amazon-cloudwatch-agent.rpm .
+              aws s3 cp s3://cloudwatch-agent-4-ec2/amazon-cloudwatch-agent.json .
+              rpm -U ./amazon-cloudwatch-agent.rpm 
+              mv amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/
+              systemctl start amazon-cloudwatch-agent
               echo "ECS_CLUSTER=spc-ecs" > /etc/ecs/ecs.config
               systemctl enable --now --no-block ecs.service
               EOF
@@ -145,6 +152,7 @@ variable "region_config" {
     ecr_endpoints    = set(string)
     ecr_s3_endpoint  = string
     ecs_endpoints    = set(string)
+    logs             = string
   }))
   default = {
     "us-east-2" = {
@@ -153,6 +161,7 @@ variable "region_config" {
       ecr_endpoints    = ["com.amazonaws.us-east-2.ecr.api", "com.amazonaws.us-east-2.ecr.dkr"]
       ecr_s3_endpoint  = "com.amazonaws.us-east-2.s3"
       ecs_endpoints    = ["com.amazonaws.us-east-2.ecs", "com.amazonaws.us-east-2.ecs-agent", "com.amazonaws.us-east-2.ecs-telemetry"]
+      logs             = "com.amazonaws.us-east-2.logs"
     },
     "eu-central-1" = {
       docker_image_arn = "arn:aws:ecr:eu-central-1:211125418581:repository/spring-petclinic-image"
@@ -160,6 +169,7 @@ variable "region_config" {
       ecr_endpoints    = ["com.amazonaws.eu-central-1.ecr.api", "com.amazonaws.eu-central-1.ecr.dkr"]
       ecr_s3_endpoint  = "com.amazonaws.eu-central-1.s3"
       ecs_endpoints    = ["com.amazonaws.eu-central-1.ecs", "com.amazonaws.eu-central-1.ecs-agent", "com.amazonaws.eu-central-1.ecs-telemetry"]
+      logs             = "com.amazonaws.eu-central-1.logs"
     }
   }
 }

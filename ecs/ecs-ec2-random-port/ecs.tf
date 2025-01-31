@@ -1,7 +1,7 @@
 ###################################################################################################
 ########  Setting UP ECS Cluster  ########
 ###################################################################################################
-resource "aws_ecs_cluster" "fargate_cluster" {
+resource "aws_ecs_cluster" "ecs_cluster" {
   name = var.ecs_cluster_name
 
   tags = merge(
@@ -27,13 +27,13 @@ resource "aws_ecs_capacity_provider" "ec2_capacity_provider" {
       maximum_scaling_step_size = 1
       minimum_scaling_step_size = 1
       status                    = "ENABLED"
-      target_capacity           = 1
+      target_capacity           = 2
     }
   }
 }
 
 resource "aws_ecs_cluster_capacity_providers" "cluster_capacity_provider_grp" {
-  cluster_name = aws_ecs_cluster.fargate_cluster.name
+  cluster_name = aws_ecs_cluster.ecs_cluster.name
 
   capacity_providers = [aws_ecs_capacity_provider.ec2_capacity_provider.name]
 
@@ -56,15 +56,11 @@ data "aws_ecs_task_definition" "spc_task_ec2" {
 ###################################################################################################
 resource "aws_ecs_service" "ec2_service" {
   name            = join("-", ["${local.prj_full_name}", "ecs-ec2"])
-  cluster         = aws_ecs_cluster.fargate_cluster.id
+  cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = data.aws_ecs_task_definition.spc_task_ec2.arn
   launch_type     = "EC2"
 
   desired_count = 1
-
-  deployment_controller {
-    type = "ECS"
-  }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.tg_asg.arn

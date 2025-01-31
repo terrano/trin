@@ -191,3 +191,22 @@ resource "aws_vpc_endpoint" "ecs_api" {
     }
   )
 }
+
+###################################################################################################
+####################################### CLOUDWATCH ENDPOINT #######################################
+###################################################################################################
+resource "aws_vpc_endpoint" "logs" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = var.region_config["${var.region}"].logs
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+
+  tags = merge(
+    var.network_tag,
+    {
+      uid  = var.prj_id
+      Name = join("-", ["${local.prj_full_name}", "CloudWatch_Communication"])
+      Type = "Endpoint"
+    }
+  )
+}

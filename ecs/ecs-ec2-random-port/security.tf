@@ -37,6 +37,44 @@ resource "aws_security_group_rule" "permit_engress" {
 ###################################################################################################
 ########################################## IAM ROLE ##########################################
 ###################################################################################################
+resource "aws_iam_policy" "get_s3" {
+  name = join("-", ["${local.prj_full_name}", "get-logger-s3"])
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "s3:GetObject"
+        ],
+        "Resource" : [
+          "arn:aws:s3:::cloudwatch-agent-4-ec2/amazon-cloudwatch-agent.rpm",
+          "arn:aws:s3:::cloudwatch-agent-4-ec2/amazon-cloudwatch-agent.json"
+        ]
+      },
+      {
+        "Action" : [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        "Effect" : "Allow",
+        "Resource" : "*"
+      }
+    ]
+  })
+
+  tags = merge(
+    var.policy_role_tag,
+    var.security_tag,
+    {
+      uid  = var.prj_id
+      Name = join("-", ["${local.prj_full_name}", "get-logger-s3"])
+      Type = "Policy"
+    }
+  )
+}
+
 resource "aws_iam_role" "ecs_role" {
   name = "ecs_ec2_ssm"
 
@@ -78,4 +116,9 @@ resource "aws_iam_role_policy_attachment" "ec2_role_attachments_ecs" {
 resource "aws_iam_role_policy_attachment" "ec2_role_attachments_ssm" {
   role       = aws_iam_role.ecs_role.name
   policy_arn = var.iam_roles["ssm"]
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_role_attachments_logger" {
+  role       = aws_iam_role.ecs_role.name
+  policy_arn = aws_iam_policy.get_s3.arn
 }
